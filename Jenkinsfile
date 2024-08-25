@@ -70,7 +70,23 @@ pipeline {
                     }
                 }
             }
+	}
 
-       }
+	stage("Trivy Scan") {
+	   steps {
+	       script {
+	       	   sh ('docker run -v /var/run/docker.sock:/var/rundocker.sock aquasec/trivy image kkdrizzy/register-app-pipeline:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table')
+	       }
+	   }	   
+	}
+
+	stage("Clean Up Artifacts") {
+	    steps {
+	    	script {
+		    sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
+		    sh "docker rmi ${IMAGE_NAME}:latets"
+		}
+	    }
+	}	
    }
 }
